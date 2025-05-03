@@ -17,27 +17,36 @@ export class App extends React.Component {
   // This code starts a timer
   timerId = 0;
 
+  _isMounted = false;
+
   state: Readonly<State> = {
     clockName: 'Clock-0',
     hasClock: true,
   };
 
-  handleContextMenu = (event: React.MouseEvent) => {
+  handleContextMenu = (event: MouseEvent) => {
     event.preventDefault();
-    this.setState({ hasClock: false });
+    if (this._isMounted) {
+      this.setState({ hasClock: false });
+    }
   };
 
-  handleClick = (event: React.MouseEvent) => {
+  handleClick = (event: MouseEvent) => {
     event.preventDefault();
-    this.setState({ hasClock: true });
+    if (this._isMounted) {
+      this.setState({ hasClock: true });
+    }
   };
 
-  // this code stops the timer
   componentDidMount(): void {
+    this._isMounted = true;
+
     this.timerId = window.setInterval(() => {
-      this.setState({
-        clockName: getRandomName(),
-      });
+      if (this._isMounted) {
+        this.setState({
+          clockName: getRandomName(),
+        });
+      }
     }, 3300);
 
     document.addEventListener('contextmenu', this.handleContextMenu);
@@ -45,6 +54,7 @@ export class App extends React.Component {
   }
 
   componentWillUnmount(): void {
+    this._isMounted = false;
     window.clearInterval(this.timerId);
     document.removeEventListener('contextmenu', this.handleContextMenu);
     document.removeEventListener('click', this.handleClick);
